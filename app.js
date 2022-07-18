@@ -20,9 +20,8 @@ app.set('view engine','ejs');
 // app.set('layout','./layouts/site.ejs');
 // app.set('views','resources/views');
 
-// const app = express();
 app.use(express.static(path.join(__dirname,'public')));
 
 app.use('/', require('./routes/web'));
-app.use('/webinar', require('./routes/webinar'));
+app.use('/webinar/:room', require('./routes/webinar'));
 
