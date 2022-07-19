@@ -1,25 +1,32 @@
 const path = require('path');
-const express_layouts = require('express-ejs-layouts');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const express = require('express');
-const morgan = require('morgan');
 const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require("passport");
 const MongoStore = require("connect-mongo");
 
 dotenv.config({path:'./.env'});
+const connectDB = require('./config/database');
+require('./config/passport');
+
+connectDB().then((r)=>console.log('DB ok'));
 
 const socket =  require('./routes/channels');
 
 const app = socket.app;
 
-app.use(express_layouts);
-app.set('view engine','ejs');
-// app.set('layout','./layouts/site.ejs');
-// app.set('views','resources/views');
-
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    cookie: {maxAge:null},
+    resave: false,
+    saveUninitialized: false,
+    unset: "destroy",
+    store: MongoStore.create({mongoUrl:process.env.mongo_uri})
+}));
+app.use(flash());
+app.use(passport.initialize({}));
+app.use(passport.session({}));
 app.use(express.static(path.join(__dirname,'public')));
 
 app.use('/', require('./routes/web'));

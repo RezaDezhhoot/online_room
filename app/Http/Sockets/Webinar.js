@@ -6,5 +6,5 @@ exports.Webinar = async (io) => {
 
 function pv_chat()
 {
-    console.log('ok');
+    console.log('socket ok');
 }
