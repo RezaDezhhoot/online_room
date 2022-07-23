@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const schema = require('../Secure/ChatItemValidation');
 const chatItemSchema = new mongoose.Schema({
     chat: {
         type: mongoose.Schema.Types.ObjectId,
@@ -15,5 +16,11 @@ const chatItemSchema = new mongoose.Schema({
         default: Date.now()
     }
 });
+
+chatItemSchema.statics.chatItemValidation = function(body) {
+    return schema.validate(body, {
+        abortEarly: false,
+    });
+}
 
 module.exports = mongoose.model('ChatItem',chatItemSchema);

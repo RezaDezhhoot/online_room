@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const schema = require('../Secure/RoomValidation');
 const roomSchema = new mongoose.Schema({
     title:{
         type: String,
@@ -42,5 +43,11 @@ const roomSchema = new mongoose.Schema({
         default: Date.now()
     }
 });
+
+roomSchema.statics.roomValidation = function(body) {
+    return schema.validate(body, {
+        abortEarly: false,
+    });
+}
 
 module.exports = mongoose.model('roomSchema',roomSchema);
