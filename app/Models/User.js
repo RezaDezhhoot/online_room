@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const schema = require('../Secure/UserValidation');
+const {schema,loginSchema} = require('../Secure/UserValidation');
 const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     full_name: {
@@ -31,6 +31,12 @@ userSchema.statics.userValidation = function(body) {
     });
 }
 
+userSchema.statics.userLoginValidation = function(body) {
+    return loginSchema.validate(body, {
+        abortEarly: false,
+    });
+}
+
 userSchema.pre("save", function(next) {
     let user = this;
     if (!user.isModified("password")) return next();
@@ -41,6 +47,11 @@ userSchema.pre("save", function(next) {
         next();
     });
 });
+
+userSchema.methods.isValidPassword = async function(password) {
+    const user = this;
+    return await bcrypt.compare(password, user.password);
+}
 
 const User = mongoose.model('User', userSchema);
 

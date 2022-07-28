@@ -1,7 +1,7 @@
 exports.authenticated = (req,res,next) => {
-    if (req.isAuthenticated()){
+    // if (req.isAuthenticated()){
         return next();
-    }
+    // }
 
-    return res.redirect('/prefix/404');
+    // return res.redirect('/prefix/404');
 }

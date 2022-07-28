@@ -7,6 +7,7 @@ class Start {
         this.app = express();
         const server = http.createServer(this.app);
         this.app.use(express.urlencoded({extended: false}));
+
         server.listen(PORT , () => {
             console.log(`Server is running on port ${PORT}`);
         });
