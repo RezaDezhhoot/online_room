@@ -1,4 +1,5 @@
-exports.Webinar = async (io) => {
+exports.Webinar = async (io,req,res,next) => {
+    res.send('111');
     io.on('connection',socket => {
         console.log(`User connected , id: ${socket.id}`);
     });

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {schema,loginSchema} = require('../Secure/UserValidation');
+const {schema,loginSchema,guestLogin} = require('../Secure/UserValidation');
 const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     full_name: {
@@ -36,6 +36,13 @@ userSchema.statics.userLoginValidation = function(body) {
         abortEarly: false,
     });
 }
+
+userSchema.statics.guestLoginValidation = function(body) {
+    return guestLogin.validate(body, {
+        abortEarly: false,
+    });
+}
+
 
 userSchema.pre("save", function(next) {
     let user = this;

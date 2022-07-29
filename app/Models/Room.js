@@ -14,11 +14,6 @@ const roomSchema = new mongoose.Schema({
         trim: true,
         unique: true
     },
-    password: {
-        type: String,
-        default : null,
-        trim: true,
-    },
     capacity: {
         type: Number,
         min: 2,
@@ -50,4 +45,4 @@ roomSchema.statics.roomValidation = function(body) {
     });
 }
 
-module.exports = mongoose.model('roomSchema',roomSchema);
+module.exports = mongoose.model('room',roomSchema);

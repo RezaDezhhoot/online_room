@@ -3,14 +3,10 @@ const Controller = require('../Controller');
 const User = require('../../../Models/User');
 const passport = require('passport');
 const jwt = require("jsonwebtoken");
+const Room = require("../../../Models/Room");
 
 class AuthenticationController
 {
-    static index(req , res)
-    {
-        res.send('index');
-    }
-
     static login(req , res)
     {
         const data = {
@@ -41,8 +37,25 @@ class AuthenticationController
                 async (error) => {
                     if (error) return next(error);
                     const token = Controller.makeToken(user);
-
-                    return res.status(200).json({data:{full_name: user["full_name"] ,email: user["email"],token: token},message:'success'});
+                    const room =  await Room.findOne({key: req.query.room });
+                    return res.status(200).json({data:{
+                        id:user._id,
+                            full_name: user["full_name"] ,
+                            email: user["email"],
+                            token: token,
+                            room,
+                            host: room.host.toString() === user._id.toString(),
+                            local_media:{
+                                audio: false,
+                                screen: false,
+                                video: false
+                            },
+                            remote_media:{
+                                audio: false,
+                                screen: false,
+                                video: false
+                            }
+                        },message:'success'});
                 }
             );
         } catch (error) {
@@ -58,7 +71,7 @@ class AuthenticationController
     )(req, res, next);
 }
 
-    static async register(req , res)
+    static register(req , res)
     {
         const data = {
             title: 'صفحه ثبت نام'
@@ -79,10 +92,27 @@ class AuthenticationController
                 });
                 return res.status(422).json({data:errorArr,message:'error'});
             }
-            const user = await User.create({full_name, email, password,});
+            const user = await User.create({full_name, email, password,room:req.query.room});
+            const room =  await Room.findOne({key: req.query.room });
             const token = Controller.makeToken(user);
-
-            return res.status(201).json({data:{full_name: user["full_name"] ,email: user["email"],token: token},message:'success'});
+            return res.status(201).json({data:{
+                id:user._id,
+                    full_name: user["full_name"] ,
+                    email: user["email"],
+                    token: token ,
+                    room,
+                    host:  false,
+                    local_media:{
+                        audio: false,
+                        screen: false,
+                        video: false
+                    },
+                    remote_media:{
+                        audio: false,
+                        screen: false,
+                        video: false
+                    }
+                },message:'success'});
         } catch (exception) {
             exception.inner.forEach(e => {
                 errorArr.push({
@@ -96,12 +126,43 @@ class AuthenticationController
 
     static guest(req , res)
     {
-
+        const data = {
+            title: 'صفحه ورود به صورت مهمان'
+        };
+        return res.status(200).json({data:data,message:'success'});
     }
 
-    static guest_logic(req , res)
+    static async guest_logic(req , res)
     {
-
+        const errorArr = [];
+        try {
+            await User.guestLoginValidation(req.body);
+            const room =  await Room.findOne({key: req.query.room });
+            return res.status(200).json({data:{
+                id:req.connection.remoteAddress,
+                full_name: req.body.full_name,
+                    room,
+                    host: false,
+                    local_media:{
+                        audio: false,
+                        screen: false,
+                        video: false
+                    },
+                    remote_media:{
+                        audio: false,
+                        screen: false,
+                        video: false
+                    }
+                },message:'success'});
+        } catch (error) {
+            error.inner.forEach(e => {
+                errorArr.push({
+                    name: e.path,
+                    message: e.message
+                });
+            });
+            return res.status(500).json({data:errorArr, message:'error'});
+        }
     }
 
     static forget_password(req,res)

@@ -1,6 +1,7 @@
 const http = require("http");
 const {Server} = require('socket.io');
 const express = require('express');
+const {validKey} = require("../Middlewares/Room");
 
 class Start {
     static run(PORT) {
@@ -16,7 +17,9 @@ class Start {
     }
 
     static use(NameSpace , module) {
-        module(this.IO.of(NameSpace));
+        this.app.use(NameSpace,validKey, (req,res,next) => {
+            module(this.IO.of(NameSpace),req,res,next);
+        });
     }
 }
 
